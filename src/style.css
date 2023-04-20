@@ -20,27 +20,38 @@ a {
 
 .one {
   color: rgb(80, 80, 80);
-  background: black;
+  background: white;
   position: absolute;
   animation: breathe 8000ms ease-in-out infinite;
+  border: 3px solid black;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.5);
 }
 .two {
   color: rgb(80, 80, 80);
-  background: black;
+  /* background: black; */
+  background: white;
   position: absolute;
+  border: 3px solid black;
   animation: breathe 12000ms ease-in-out infinite;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
 }
 .three {
   color: rgb(80, 80, 80);
-  background: black;
+  /* background: black; */
+  background: white;
   position: absolute;
+  border: 3px solid black;
   animation: breathe 8000ms ease-in-out infinite;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
 }
 .four {
   color: rgb(80, 80, 80);
-  background: black;
+  border: 3px solid black;
+  /* background: black; */
+  background: white;
   position: absolute;
   animation: breathe 8000ms ease-in-out infinite;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
 }
 
 .animate {
