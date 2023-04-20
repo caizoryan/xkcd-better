@@ -13,9 +13,17 @@ import { Comic } from "./Comic";
 
 // results from search
 async function fetchResults(prompt: string) {
-  return (
-    await fetch(`http://localhost:8080/search?q=${prompt}&autocorrect=true`)
-  ).json();
+  return await fetch(
+    `http://localhost:8080/search?q=${prompt}&autocorrect=true`
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.rankings) {
+        return res.rankings;
+      } else if (typeof res != "string") {
+        return res;
+      } else return [{ ComicNum: 1969 }];
+    });
 }
 
 // comic data
