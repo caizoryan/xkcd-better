@@ -138,12 +138,14 @@ button:hover {
 
 .comic-title-box {
   width: 50%;
-  font-size: 24px;
+  font-size: 18px;
 }
 
 .comic-title-alt {
   width: 50%;
+  padding: 10px;
   overflow-y: scroll;
+  font-size: 14px;
 }
 
 .comic-box:hover {
@@ -156,9 +158,7 @@ button:hover {
 }
 
 .comic-title {
-  margin: 2% 5%;
-  /* color: white; */
-  padding: 5px;
+  padding: 10px;
 }
 
 .results-page {
@@ -166,12 +166,12 @@ button:hover {
   width: 50vw;
   height: 102vh;
   position: fixed;
-  border: 3px solid black;
+  /* border: 3px solid black; */
   top: -10px;
-  background: white;
+  /* background: white; */
   transition: ease-in-out all 300ms;
   overflow-y: scroll;
-  box-shadow: -15px 5px 24px 2px rgba(0, 0, 0, 0.1);
+  /* box-shadow: -15px 5px 24px 2px rgba(0, 0, 0, 0.1); */
 }
 
 .comic-img {

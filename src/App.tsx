@@ -14,6 +14,12 @@ import { createMutable } from "solid-js/store";
 import "./style.css";
 import { Comic } from "./Comic";
 
+let light = `rgba(200, 200, 200, 1)`;
+let dark = `rgba(50, 50, 50, 1)`;
+
+// light = `rgba(0, 0, 0, 0)`;
+// dark = `rgba(0, 0, 0, 0)`;
+
 const endpoint = `http://localhost:8080`;
 
 type States = "suggest" | "query" | "results" | "data";
@@ -47,8 +53,8 @@ createEffect(() => {
 // results from search
 async function fetchResults(prompt: string) {
   setState("query");
-  if (boxStates[3].data?.length > 100) boxStates[2].data.splice(0, 50);
-  if (boxStates[1].data?.length > 100) boxStates[2].data.splice(0, 50);
+  if (boxStates[3].data?.length > 100) boxStates[3].data.splice(0, 50);
+  if (boxStates[1].data?.length > 100) boxStates[1].data.splice(0, 50);
   boxStates[2].data?.push(
     <>
       <span
@@ -95,7 +101,6 @@ async function fetchComic(id: number) {
   return await fetch(`https://getxkcd.vercel.app/api/comic?num=${id}`)
     .then((res) => res.json())
     .then((res) => {
-      setState("data");
       boxStates[0].data?.push(
         <span style={`font-variation-settings: "wght" ${Math.random() * 700}`}>
           {JSON.stringify(res)}
@@ -331,13 +336,11 @@ function mapRange(
 }
 
 function handleColors(element: any) {
-  let light = `rgba(200, 200, 200, 1)`;
   setAllDark();
   element.c = light;
 }
 
 function setAllDark() {
-  let dark = `rgba(50, 50, 50, 1)`;
   for (const x of boxStates) x.c = dark;
 }
 
