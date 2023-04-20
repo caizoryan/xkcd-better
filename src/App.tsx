@@ -20,7 +20,8 @@ let dark = `rgba(50, 50, 50, 1)`;
 // light = `rgba(0, 0, 0, 0)`;
 // dark = `rgba(0, 0, 0, 0)`;
 
-const endpoint = `http://localhost:8080`;
+let endpoint = `https://xo6yu9zb74.execute-api.us-east-2.amazonaws.com/staging`;
+// endpoint = `http://localhost:8080`;
 
 type States = "suggest" | "query" | "results" | "data";
 const [state, setState] = createSignal<States>("suggest");
