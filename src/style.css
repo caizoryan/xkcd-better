@@ -20,7 +20,7 @@ a {
 
 .one {
   color: rgb(80, 80, 80);
-  background: white;
+  background: black;
   position: absolute;
   animation: breathe 8000ms ease-in-out infinite;
   border: 3px solid black;
@@ -28,8 +28,7 @@ a {
 }
 .two {
   color: rgb(80, 80, 80);
-  /* background: black; */
-  background: white;
+  background: black;
   position: absolute;
   border: 3px solid black;
   animation: breathe 12000ms ease-in-out infinite;
@@ -37,8 +36,7 @@ a {
 }
 .three {
   color: rgb(80, 80, 80);
-  /* background: black; */
-  background: white;
+  background: black;
   position: absolute;
   border: 3px solid black;
   animation: breathe 8000ms ease-in-out infinite;
@@ -47,8 +45,7 @@ a {
 .four {
   color: rgb(80, 80, 80);
   border: 3px solid black;
-  /* background: black; */
-  background: white;
+  background: black;
   position: absolute;
   animation: breathe 8000ms ease-in-out infinite;
   box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
