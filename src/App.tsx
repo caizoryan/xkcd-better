@@ -47,21 +47,31 @@ createEffect(() => {
 // results from search
 async function fetchResults(prompt: string) {
   setState("query");
+  if (boxStates[3].data?.length > 100) boxStates[2].data.splice(0, 50);
+  if (boxStates[1].data?.length > 100) boxStates[2].data.splice(0, 50);
   boxStates[2].data?.push(
-    <span
-      style={`font-variation-settings: "wght" ${Math.random() * 100}`}
-    >{`${endpoint}/search?q=${prompt}&autocorrect=true`}</span>
+    <>
+      <span
+        style={`font-variation-settings: "wght" ${Math.random() * 100}`}
+      >{`${endpoint}/search?q=`}</span>
+      <span style={`font-variation-settings: "wght" ${Math.random() * 800}`}>
+        {prompt}
+      </span>
+      <span
+        style={`font-variation-settings: "wght" ${Math.random() * 100}`}
+      >{`&autocorrect=true`}</span>
+    </>
   );
   return await fetch(`${endpoint}/search?q=${prompt}&autocorrect=true`)
     .then((res) => res.json())
     .then((res) => {
       if (res.rankings) {
         for (const x of res.rankings)
-          boxStates[2].data?.push(
+          boxStates[1].data?.push(
             <span
               style={`font-variation-settings: "wght" ${Math.random() * 700}`}
             >
-              {JSON.stringify(x)}
+              {JSON.stringify(x) + " "}
             </span>
           );
         return res.rankings;
@@ -71,7 +81,7 @@ async function fetchResults(prompt: string) {
             <span
               style={`font-variation-settings: "wght" ${Math.random() * 700}`}
             >
-              {JSON.stringify(x)}
+              {JSON.stringify(x) + " "}
             </span>
           );
         return res;
@@ -96,11 +106,13 @@ async function fetchComic(id: number) {
 }
 async function suggestWords(prompt: string) {
   setState("suggest");
-  boxStates[3].data?.push(
-    <span
-      style={`font-variation-settings: "wght" ${Math.random() * 100}`}
-    >{`${endpoint}/suggest?q=${prompt}`}</span>
-  );
+  if (boxStates[3].data?.length > 100) boxStates[3].data.splice(0, 50);
+  if (prompt != "")
+    boxStates[3].data?.push(
+      <span
+        style={`font-variation-settings: "wght" ${Math.random() * 100}`}
+      >{`${endpoint}/suggest?q=${prompt}`}</span>
+    );
   if (prompt.length > 0)
     return await fetch(`${endpoint}/suggest?q=${prompt}`)
       .then((res) => res.json())
@@ -122,8 +134,8 @@ async function suggestWords(prompt: string) {
 
 let inputBox: HTMLInputElement;
 const [prompt, setPrompt] = createSignal(""); // upon pressing search
-const [tempPrompt, setTempPrompt] = createSignal(""); // suggestions as you type
 const [results] = createResource(prompt, fetchResults);
+const [tempPrompt, setTempPrompt] = createSignal(""); // suggestions as you type
 const [data, setData] = createSignal<Array<any>>([]);
 const [suggestions] = createResource(tempPrompt, suggestWords);
 
@@ -240,6 +252,9 @@ const Box: Component<{
 const App: Component = () => {
   onMount(() => {
     window.addEventListener("mousemove", handleMouseMove);
+    fetch(
+      `https://xo6yu9zb74.execute-api.us-east-2.amazonaws.com/staging/stats`
+    ).then((res) => console.log(res.json()));
   });
 
   return (

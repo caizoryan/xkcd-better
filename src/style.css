@@ -23,32 +23,10 @@ a {
   font-size: 8px;
   text-align: justify;
   position: absolute;
-  animation: breathe 8000ms ease-in-out infinite;
+  animation: breathe 22000ms ease-in-out infinite;
   overflow-y: scroll;
   border: 3px solid black;
 }
-.two {
-  color: rgb(80, 80, 80);
-  background: black;
-  position: absolute;
-  border: 3px solid black;
-  animation: breathe 12000ms ease-in-out infinite;
-}
-.three {
-  color: rgb(80, 80, 80);
-  background: black;
-  position: absolute;
-  border: 3px solid black;
-  animation: breathe 8000ms ease-in-out infinite;
-}
-.four {
-  color: rgb(80, 80, 80);
-  border: 3px solid black;
-  background: black;
-  position: absolute;
-  animation: breathe 8000ms ease-in-out infinite;
-}
-
 .animate {
   transition: ease-out 300ms all;
 }
