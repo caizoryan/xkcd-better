@@ -10,16 +10,18 @@ const Comic: Component<{
         style={hover() ? `right: 45vw` : `right: -50vw`}
         src={props.comic.img}
       ></img>
-      <a href={"https://xkcd.com/" + props.comic.num}>
-        <div
-          class="comic-box"
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-        >
+      <div
+        class="comic-box"
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
+        <div class="comic-title-box">
           <p class="comic-title">{props.comic.safe_title}</p>
+        </div>
+        <div class="comic-title-alt">
           <p style="margin: 0 2.5vw 1vw 2.5vw;">{props.comic.alt}</p>
         </div>
-      </a>
+      </div>
     </>
   );
 };

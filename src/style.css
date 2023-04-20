@@ -79,7 +79,7 @@ a {
 
 .search-container input {
   all: unset;
-  border: 2px solid black;
+  border: 3px solid black;
   width: 25vw;
   padding: 10px;
   background: white;
@@ -87,7 +87,7 @@ a {
 
 .search-container button {
   all: unset;
-  border: 2px solid black;
+  border: 3px solid black;
   background: white;
   margin: 0 0.5vw;
   width: 100px;
@@ -97,7 +97,7 @@ a {
   align-items: center;
   transition: ease-in-out all 200ms;
   text-transform: uppercase;
-  font-variation-settings: "wght" 400;
+  font-variation-settings: "wght" 500;
 }
 
 button:hover {
@@ -119,13 +119,26 @@ button:hover {
 
 .comic-box {
   margin: 5%;
-  width: 90%;
+  width: 85%;
+  background: white;
+  border: 3px solid rgba(0, 0, 0, 0);
+  /* border-bottom: 3px solid black; */
+  height: 25vh;
+  display: flex;
+}
+
+.comic-title-box {
+  width: 50%;
+  font-size: 24px;
+}
+
+.comic-title-alt {
   overflow-y: scroll;
-  background: rgb(240, 240, 240);
-  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.05);
 }
 
 .comic-box:hover {
+  padding: 20px;
+  border: 3px solid rgba(0, 0, 0, 1);
   transform: rotate(1.4deg) scale(1.02);
   transition: all ease-in-out 50ms;
   cursor: pointer;
@@ -134,8 +147,7 @@ button:hover {
 
 .comic-title {
   margin: 2% 5%;
-  background: black;
-  color: white;
+  /* color: white; */
   padding: 5px;
 }
 
@@ -155,21 +167,21 @@ button:hover {
 }
 
 .results-page {
-  z-index: 2;
+  z-index: -1;
   width: 50vw;
   height: 100vh;
   position: fixed;
-  border: 1px solid black;
+  border: 3px solid black;
   top: 0;
   background: white;
   transition: ease-in-out all 300ms;
   overflow-y: scroll;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.05);
 }
 
 .comic-img {
   position: fixed;
   top: 5vw;
-  width: 45vw;
+  width: 25vw;
   transition: ease-in-out all 180ms;
-  z-index: -1;
 }
