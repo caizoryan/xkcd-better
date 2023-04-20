@@ -97,9 +97,13 @@ async function suggestWords(prompt: string) {
   else return [""];
 }
 
+const [imgY, setImgY] = createSignal("0px");
+
 function handleMouseMove(event) {
   let x = event.clientX;
   let y = event.clientY;
+
+  setImgY(y - 150 + "px");
 
   one.w = mapRange(y, 0, window.innerHeight, 40, 70);
   one.h = mapRange(y, 0, window.innerHeight, 15, 23);
@@ -175,7 +179,9 @@ const App: Component = () => {
         class="results-page"
         style={closed() ? `right: 0vw;` : `right: -50vw`}
       >
-        <For each={data()}>{(comic) => <Comic comic={comic}></Comic>}</For>
+        <For each={data()}>
+          {(comic) => <Comic imgY={imgY} comic={comic}></Comic>}
+        </For>
       </div>
     </>
   );

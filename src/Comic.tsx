@@ -1,5 +1,6 @@
-import { Component, createSignal } from "solid-js";
+import { Accessor, Component, createSignal } from "solid-js";
 const Comic: Component<{
+  imgY: Accessor<string>;
   comic: { num: number; safe_title: string; img: string; alt: string };
 }> = (props) => {
   const [hover, setHover] = createSignal(false);
@@ -7,7 +8,11 @@ const Comic: Component<{
     <>
       <img
         class="comic-img"
-        style={hover() ? `right: 45vw` : `right: -50vw`}
+        style={
+          hover()
+            ? `right: 45vw; top: ${props.imgY()}`
+            : `right: -50vw;top: ${props.imgY()}`
+        }
         src={props.comic.img}
       ></img>
       <div

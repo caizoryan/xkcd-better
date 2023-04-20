@@ -118,7 +118,8 @@ button:hover {
   margin: 5%;
   width: 85%;
   background: white;
-  border: 3px solid rgba(0, 0, 0, 0);
+  border: 3px dashed rgb(240, 240, 240);
+  padding: 10px;
   /* border-bottom: 3px solid black; */
   height: 25vh;
   display: flex;
@@ -130,6 +131,7 @@ button:hover {
 }
 
 .comic-title-alt {
+  width: 50%;
   overflow-y: scroll;
 }
 
@@ -181,4 +183,7 @@ button:hover {
   top: 5vw;
   width: 25vw;
   transition: ease-in-out all 180ms;
+  border: 3px solid black;
+  padding: 10px;
+  background: white;
 }
