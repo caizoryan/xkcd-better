@@ -5,22 +5,75 @@ import {
   For,
   createEffect,
   onMount,
+  Show,
+  Setter,
+  createMemo,
 } from "solid-js";
 import { createMutable } from "solid-js/store";
 
 import "./style.css";
 import { Comic } from "./Comic";
 
+const endpoint = `http://localhost:8080`;
+
+type States = "suggest" | "query" | "results" | "data";
+const [state, setState] = createSignal<States>("suggest");
+
+const boxStates = createMutable([
+  {
+    x: 15,
+    y: 5,
+    w: 70,
+    h: 20,
+    o: 0.2,
+    c: "",
+    data: [<span></span>],
+  },
+  { x: 20, y: 24, w: 60, h: 20, o: 0.2, c: "", data: [<span></span>] },
+  { x: 8, y: 40, w: 50, h: 25, o: 0.2, c: "", data: [<span></span>] },
+  { x: 4, y: 55, w: 60, h: 40, o: 0.2, c: "", data: [<span></span>] },
+]);
+createEffect(() => {
+  if (state() === "suggest") {
+    handleColors(boxStates[3]);
+  } else if (state() === "query") {
+    handleColors(boxStates[2]);
+  } else if (state() === "results") {
+    handleColors(boxStates[1]);
+  } else if (state() === "data") {
+    handleColors(boxStates[0]);
+  }
+});
 // results from search
 async function fetchResults(prompt: string) {
-  return await fetch(
-    `http://localhost:8080/search?q=${prompt}&autocorrect=true`
-  )
+  setState("query");
+  boxStates[2].data?.push(
+    <span
+      style={`font-variation-settings: "wght" ${Math.random() * 100}`}
+    >{`${endpoint}/search?q=${prompt}&autocorrect=true`}</span>
+  );
+  return await fetch(`${endpoint}/search?q=${prompt}&autocorrect=true`)
     .then((res) => res.json())
     .then((res) => {
       if (res.rankings) {
+        for (const x of res.rankings)
+          boxStates[2].data?.push(
+            <span
+              style={`font-variation-settings: "wght" ${Math.random() * 700}`}
+            >
+              {JSON.stringify(x)}
+            </span>
+          );
         return res.rankings;
       } else if (typeof res != "string") {
+        for (const x of res)
+          boxStates[1].data?.push(
+            <span
+              style={`font-variation-settings: "wght" ${Math.random() * 700}`}
+            >
+              {JSON.stringify(x)}
+            </span>
+          );
         return res;
       } else return [{ ComicNum: 1969 }];
     });
@@ -28,7 +81,43 @@ async function fetchResults(prompt: string) {
 
 // comic data
 async function fetchComic(id: number) {
-  return (await fetch(`https://getxkcd.vercel.app/api/comic?num=${id}`)).json();
+  setState("results");
+  return await fetch(`https://getxkcd.vercel.app/api/comic?num=${id}`)
+    .then((res) => res.json())
+    .then((res) => {
+      setState("data");
+      boxStates[0].data?.push(
+        <span style={`font-variation-settings: "wght" ${Math.random() * 700}`}>
+          {JSON.stringify(res)}
+        </span>
+      );
+      return res;
+    });
+}
+async function suggestWords(prompt: string) {
+  setState("suggest");
+  boxStates[3].data?.push(
+    <span
+      style={`font-variation-settings: "wght" ${Math.random() * 100}`}
+    >{`${endpoint}/suggest?q=${prompt}`}</span>
+  );
+  if (prompt.length > 0)
+    return await fetch(`${endpoint}/suggest?q=${prompt}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res?.length > 0) {
+          for (const x of res)
+            boxStates[3].data?.push(
+              <span
+                style={`font-variation-settings: "wght" ${Math.random() * 700}`}
+              >
+                {x}
+              </span>
+            );
+          return res;
+        } else return [""];
+      });
+  else return [""];
 }
 
 let inputBox: HTMLInputElement;
@@ -40,11 +129,6 @@ const [suggestions] = createResource(tempPrompt, suggestWords);
 
 const [closed, setClosed] = createSignal(false);
 const [animate, setAnimate] = createSignal(false);
-
-const one = createMutable({ x: 15, y: 5, w: 70, h: 20 });
-const two = createMutable({ x: 20, y: 24, w: 60, h: 20 });
-const three = createMutable({ x: 8, y: 40, w: 50, h: 25 });
-const four = createMutable({ x: 4, y: 55, w: 60, h: 40 });
 
 function handleSearch(prompt: string) {
   if (!closed()) setClosed(true);
@@ -61,6 +145,7 @@ createEffect(() => {
 });
 
 function updateData(results: any) {
+  const swap: Array<any> = [];
   if (results.loading) {
     setTimeout(() => {
       updateData(results);
@@ -72,12 +157,14 @@ function updateData(results: any) {
       fetchComic(x.ComicNum)
         .then((res) => {
           res.rank = i;
-          setData((prev) => [...prev, res]);
-          getExplain(x.ComicNum, res.title);
+          swap.push(res);
+          // getExplain(x.ComicNum, res.title);
         })
         .then(() => {
-          setData(data().sort((a, b) => a.rank - b.rank));
-          console.log(data());
+          if (swap.length === results().length) {
+            setData(swap.sort((a, b) => a.rank - b.rank));
+            setState("data");
+          }
         });
     }
   } else {
@@ -91,12 +178,6 @@ function getExplain(id: number, title: string) {
   fetch(url).then((res) => res.json());
 }
 
-async function suggestWords(prompt: string) {
-  if (prompt.length > 0)
-    return (await fetch(`http://localhost:8080/suggest?q=${prompt}`)).json();
-  else return [""];
-}
-
 const [imgY, setImgY] = createSignal("0px");
 
 function handleMouseMove(event) {
@@ -105,75 +186,102 @@ function handleMouseMove(event) {
 
   setImgY(y - 150 + "px");
 
-  one.w = mapRange(y, 0, window.innerHeight, 40, 70);
-  one.h = mapRange(y, 0, window.innerHeight, 15, 23);
-  one.x = mapRange(x, 0, window.innerWidth, 13, 23);
+  boxStates[0].w = mapRange(y, 0, window.innerHeight, 40, 70);
+  boxStates[0].h = mapRange(y, 0, window.innerHeight, 15, 23);
+  boxStates[0].x = mapRange(x, 0, window.innerWidth, 13, 23);
+  boxStates[0].o = mapRange(x, 0, window.innerWidth, 0.1, 0.2);
 
-  two.y = mapRange(y, 0, window.innerHeight, 15, 25);
-  two.h = mapRange(y, 0, window.innerHeight, 28, 8);
-  two.x = mapRange(x, 0, window.innerWidth, 12, 8);
-  two.w = mapRange(x, 0, window.innerWidth, 63, 53);
+  boxStates[1].y = mapRange(y, 0, window.innerHeight, 15, 25);
+  boxStates[1].h = mapRange(y, 0, window.innerHeight, 28, 8);
+  boxStates[1].x = mapRange(x, 0, window.innerWidth, 12, 8);
+  boxStates[1].w = mapRange(x, 0, window.innerWidth, 63, 53);
+  boxStates[1].o = mapRange(y, 0, window.innerWidth, 0.1, 0.5);
 
-  three.h = mapRange(y, 0, window.innerHeight, 19, 68);
-  three.y = mapRange(y, 0, window.innerHeight, 42, 19);
-  three.x = mapRange(x, 0, window.innerWidth, 8, 12);
+  boxStates[2].h = mapRange(y, 0, window.innerHeight, 19, 68);
+  boxStates[2].y = mapRange(y, 0, window.innerHeight, 42, 19);
+  boxStates[2].x = mapRange(x, 0, window.innerWidth, 8, 12);
+  boxStates[2].o = mapRange(x, 0, window.innerWidth, 0.8, 0.2);
 
-  four.h = mapRange(y, 0, window.innerHeight, 50, 25);
-  four.y = mapRange(y, 0, window.innerHeight, 45, 70);
-  four.x = mapRange(y, 0, window.innerHeight, 12, 4);
-  four.w = mapRange(x, 0, window.innerWidth, 70, 40);
+  boxStates[3].h = mapRange(y, 0, window.innerHeight, 50, 25);
+  boxStates[3].y = mapRange(y, 0, window.innerHeight, 45, 70);
+  boxStates[3].x = mapRange(y, 0, window.innerHeight, 12, 4);
+  boxStates[3].w = mapRange(x, 0, window.innerWidth, 70, 40);
+  boxStates[3].o = mapRange(x, 0, window.innerWidth, 0.03, 0.02);
 }
+
+const Box: Component<{
+  state: {
+    data: string;
+    w: number;
+    o: number;
+    x: number;
+    y: number;
+    h: number;
+    c: number;
+  };
+}> = (props) => {
+  let val = 0.65;
+  return (
+    <div
+      class={animate() ? `one animate` : `one`}
+      style={`width: ${
+        !closed() ? props.state.w : props.state.w * val
+      }vw; height: ${props.state.h}vh; top: ${props.state.y}vh; left: ${
+        props.state.x
+      }vw; color: ${
+        props.state.c
+      }; box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, ${props.state.o})`}
+    >
+      {...props.state.data}
+    </div>
+  );
+};
 
 const App: Component = () => {
   onMount(() => {
     window.addEventListener("mousemove", handleMouseMove);
   });
 
-  let val = 0.7;
   return (
     <>
       <div class="canvas">
-        <div
-          class={animate() ? `one animate` : `one`}
-          style={`width: ${!closed() ? one.w : one.w * val}vw; height: ${
-            one.h
-          }vh; top: ${one.y}vh; left: ${one.x}vw`}
-        ></div>
-        <div
-          class={animate() ? `two animate` : `two`}
-          style={`width: ${!closed() ? two.w : two.w * val}vw; height: ${
-            two.h
-          }vh; top: ${two.y}vh; left: ${two.x}vw`}
-        ></div>
-        <div
-          class={animate() ? `three animate` : `three`}
-          style={`width: ${!closed() ? three.w : three.w * val}vw; height: ${
-            three.h
-          }vh; top: ${three.y}vh; left: ${three.x}vw`}
-        ></div>
-        <div
-          class={animate() ? `four animate` : `four`}
-          style={`width: ${!closed() ? four.w : four.w * val}vw; height: ${
-            four.h
-          }vh; top: ${four.y}vh; left: ${four.x}vw`}
-        ></div>
+        <For each={boxStates}>{(box) => <Box state={box}></Box>}</For>
       </div>
       <div
         class="search-container"
         style={closed() ? `right: 60vw` : `right: 10vw;`}
       >
-        <input
-          ref={inputBox}
-          type="text"
-          onInput={(e) => setTempPrompt(e.currentTarget.value)}
-        ></input>
-        <button
-          onClick={() => {
-            handleSearch(inputBox.value);
-          }}
-        >
-          Search
-        </button>
+        <Show when={suggestions() ? suggestions()[0] != "" : false}>
+          <div class="suggestions-container">
+            <For each={suggestions()}>
+              {(suggested) => {
+                if (suggested != "")
+                  return (
+                    <p
+                      onClick={() => handleSearch(suggested)}
+                      class="suggestions"
+                    >
+                      {suggested}
+                    </p>
+                  );
+              }}
+            </For>
+          </div>
+        </Show>
+        <div class="search-and-button">
+          <input
+            ref={inputBox}
+            type="text"
+            onInput={(e) => setTempPrompt(e.currentTarget.value)}
+          ></input>
+          <button
+            onClick={() => {
+              handleSearch(inputBox.value);
+            }}
+          >
+            Search
+          </button>
+        </div>
       </div>
       <div
         class="results-page"
@@ -205,6 +313,17 @@ function mapRange(
   const mappedValue = normalizedValue * outRange + outMin;
 
   return mappedValue;
+}
+
+function handleColors(element: any) {
+  let light = `rgba(200, 200, 200, 1)`;
+  setAllDark();
+  element.c = light;
+}
+
+function setAllDark() {
+  let dark = `rgba(50, 50, 50, 1)`;
+  for (const x of boxStates) x.c = dark;
 }
 
 export default App;

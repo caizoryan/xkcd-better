@@ -19,13 +19,12 @@ a {
 }
 
 .one {
+  color: rgb(80, 80, 80);
   background: black;
-  font-size: 8px;
-  text-align: justify;
   position: absolute;
   animation: breathe 8000ms ease-in-out infinite;
-  overflow-y: scroll;
   border: 3px solid black;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.5);
 }
 .two {
   color: rgb(80, 80, 80);
@@ -33,6 +32,7 @@ a {
   position: absolute;
   border: 3px solid black;
   animation: breathe 12000ms ease-in-out infinite;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
 }
 .three {
   color: rgb(80, 80, 80);
@@ -40,6 +40,7 @@ a {
   position: absolute;
   border: 3px solid black;
   animation: breathe 8000ms ease-in-out infinite;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
 }
 .four {
   color: rgb(80, 80, 80);
@@ -47,6 +48,7 @@ a {
   background: black;
   position: absolute;
   animation: breathe 8000ms ease-in-out infinite;
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.2);
 }
 
 .animate {
@@ -121,7 +123,7 @@ button:hover {
   all: unset;
   border-top: 1px solid black;
   padding: 5px;
-  transition: ease-in-out all 250ms;
+  transition: ease-in-out all 200ms;
   font-variation-settings: "wght" 300;
 }
 
@@ -150,12 +152,11 @@ button:hover {
   margin: 5%;
   width: 85%;
   background: white;
-  border: 3px solid rgb(240, 240, 240);
+  border: 3px dashed rgb(240, 240, 240);
   padding: 10px;
-  transition: all ease-in-out 150ms;
+  /* border-bottom: 3px solid black; */
   height: 25vh;
   display: flex;
-  font-variation-settings: "wght" 350;
 }
 
 .comic-title-box {
@@ -172,9 +173,9 @@ button:hover {
   padding: 20px;
   border: 3px solid rgba(0, 0, 0, 1);
   transform: rotate(1.4deg) scale(1.02);
+  transition: all ease-in-out 50ms;
   cursor: pointer;
   box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.3);
-  font-variation-settings: "wght" 550;
 }
 
 .comic-title {
@@ -186,14 +187,14 @@ button:hover {
 .results-page {
   z-index: -1;
   width: 50vw;
-  height: 102vh;
+  height: 100vh;
   position: fixed;
   border: 3px solid black;
-  top: -10px;
+  top: 0;
   background: white;
   transition: ease-in-out all 300ms;
   overflow-y: scroll;
-  box-shadow: -15px 5px 24px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.05);
 }
 
 .comic-img {
