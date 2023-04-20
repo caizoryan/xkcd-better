@@ -1,5 +1,7 @@
 import {
   createResource,
+  Switch,
+  Match,
   Component,
   createSignal,
   For,
@@ -56,7 +58,7 @@ async function fetchResults(prompt: string) {
   setState("query");
   if (boxStates[3].data?.length > 100) boxStates[3].data.splice(0, 50);
   if (boxStates[1].data?.length > 100) boxStates[1].data.splice(0, 50);
-  boxStates[2].data?.push(
+  boxStates[2].data?.unshift(
     <>
       <span
         style={`font-variation-settings: "wght" ${Math.random() * 100}`}
@@ -74,7 +76,7 @@ async function fetchResults(prompt: string) {
     .then((res) => {
       if (res.rankings) {
         for (const x of res.rankings)
-          boxStates[1].data?.push(
+          boxStates[1].data?.unshift(
             <span
               style={`font-variation-settings: "wght" ${Math.random() * 700}`}
             >
@@ -84,7 +86,7 @@ async function fetchResults(prompt: string) {
         return res.rankings;
       } else if (typeof res != "string") {
         for (const x of res)
-          boxStates[1].data?.push(
+          boxStates[1].data?.unshift(
             <span
               style={`font-variation-settings: "wght" ${Math.random() * 700}`}
             >
@@ -102,7 +104,7 @@ async function fetchComic(id: number) {
   return await fetch(`https://getxkcd.vercel.app/api/comic?num=${id}`)
     .then((res) => res.json())
     .then((res) => {
-      boxStates[0].data?.push(
+      boxStates[0].data?.unshift(
         <span style={`font-variation-settings: "wght" ${Math.random() * 700}`}>
           {JSON.stringify(res)}
         </span>
@@ -114,7 +116,7 @@ async function suggestWords(prompt: string) {
   setState("suggest");
   if (boxStates[3].data?.length > 100) boxStates[3].data.splice(0, 50);
   if (prompt != "")
-    boxStates[3].data?.push(
+    boxStates[3].data?.unshift(
       <span
         style={`font-variation-settings: "wght" ${Math.random() * 100}`}
       >{`${endpoint}/suggest?q=${prompt}`}</span>
@@ -125,7 +127,7 @@ async function suggestWords(prompt: string) {
       .then((res) => {
         if (res?.length > 0) {
           for (const x of res)
-            boxStates[3].data?.push(
+            boxStates[3].data?.unshift(
               <span
                 style={`font-variation-settings: "wght" ${Math.random() * 700}`}
               >
@@ -190,9 +192,52 @@ function updateData(results: any) {
   }
 }
 
-function getExplain(id: number, title: string) {
-  title = title.replace(" ", "_");
-  let url = `https://www.explainxkcd.com/wiki/api.php?action=parse&page=${id}:_${title}&origin=*&format=json`;
+const FullPage: Component<{
+  close: Function;
+  comic: { num: number; safe_title: string; img: string; alt: string };
+}> = (props) => {
+  const [explain, setExplain] = createSignal(false);
+  const [selected, setSelected] = createSignal({
+    id: props.comic.num,
+    title: props.comic.safe_title,
+  }); // upon pressing search
+  const [exp] = createResource(selected, getExplain);
+  console.log(exp);
+  return (
+    <div class="full-page">
+      <div
+        class="page-close"
+        onClick={() => {
+          close();
+        }}
+      >
+        close
+      </div>
+      <div class="page-title">{props.comic.safe_title}</div>
+      <div class="page-rest">
+        <div class="page-alt-explain">
+          <div class="page-alt">{props.comic.alt}</div>
+          <button class="page-show-explain" onClick={() => setExplain(true)}>
+            Show Explaination
+          </button>
+        </div>
+
+        <div class="page-display">
+          <Switch>
+            <Match when={explain()}>hello</Match>
+            <Match when={!explain()}>
+              <img src={props.comic.img}></img>
+            </Match>
+          </Switch>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function getExplain(query: { id: number; title: string }) {
+  let title = query.title.replace(" ", "_");
+  let url = `https://www.explainxkcd.com/wiki/api.php?action=parse&page=${query.id}:_${title}&origin=*&format=json`;
   fetch(url).then((res) => res.json());
 }
 
@@ -263,6 +308,19 @@ const App: Component = () => {
     ).then((res) => console.log(res.json()));
   });
 
+  const [selected, setSelected] = createSignal(false);
+  const [comic, setComic] = createSignal({});
+  function handleSelected(comic) {
+    setSelected(false);
+    setComic(comic);
+    setTimeout(() => {
+      setSelected(true);
+    }, 100);
+  }
+
+  function handleClose() {
+    setSelected(false);
+  }
   return (
     <>
       <div class="canvas">
@@ -309,9 +367,14 @@ const App: Component = () => {
         style={closed() ? `right: 0vw;` : `right: -50vw`}
       >
         <For each={data()}>
-          {(comic) => <Comic imgY={imgY} comic={comic}></Comic>}
+          {(comic) => (
+            <Comic click={handleSelected} imgY={imgY} comic={comic}></Comic>
+          )}
         </For>
       </div>
+      <Show when={selected()}>
+        <FullPage close={handleClose} comic={comic()}></FullPage>
+      </Show>
     </>
   );
 };

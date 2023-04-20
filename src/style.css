@@ -18,6 +18,67 @@ a {
   left: 0;
 }
 
+.full-page {
+  box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  overflow-y: scroll;
+  padding: 40px;
+  width: 70vw;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  font-size: 34px;
+  text-transform: uppercase;
+  margin-top: 50px;
+  margin-bottom: 100px;
+}
+
+.page-rest {
+  display: flex;
+}
+
+.page-close {
+  position: absolute;
+  top: 2%;
+  right: 2%;
+}
+
+.page-show-explain {
+  all: unset;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: ease-in-out all 200ms;
+  text-transform: uppercase;
+  font-variation-settings: "wght" 500;
+}
+
+.page-alt {
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.page-alt-explain {
+  width: 30%;
+  margin-right: 2%;
+}
+
+.page-display {
+  width: 68%;
+  overflow-y: scroll;
+}
+
+.page-display img {
+  width: 95%;
+}
+
 .one {
   background: black;
   font-size: 8px;
