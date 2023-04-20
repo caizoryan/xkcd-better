@@ -17,20 +17,21 @@ const Comic: Component<{
         }
         src={props.comic.img}
       ></img>
-      <a href={`https://xkcd.com/${props.comic.num}`} target="_blank">
-        <div
-          class="comic-box"
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-        >
-          <div class="comic-title-box">
-            <p class="comic-title">{rank + ". " + props.comic.safe_title}</p>
-          </div>
-          <div class="comic-title-alt">
-            <p>{props.comic.alt}</p>
-          </div>
+      <div
+        onClick={() => {
+          props.click(props.comic);
+        }}
+        class="comic-box"
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
+        <div class="comic-title-box">
+          <p class="comic-title">{rank + ". " + props.comic.safe_title}</p>
         </div>
-      </a>
+        <div class="comic-title-alt">
+          <p>{props.comic.alt}</p>
+        </div>
+      </div>
     </>
   );
 };
