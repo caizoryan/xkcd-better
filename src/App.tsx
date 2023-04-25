@@ -8,16 +8,14 @@ import {
   createEffect,
   onMount,
   Show,
-  Setter,
-  createMemo,
 } from "solid-js";
 import { createMutable } from "solid-js/store";
 
 import "./style.css";
 import { Comic } from "./Comic";
 
-let light = `rgba(200, 200, 200, 1)`;
-let dark = `rgba(50, 50, 50, 1)`;
+let light = `rgba(230, 230, 230, 1)`;
+let dark = `rgba(80, 80, 80, 1)`;
 
 // light = `rgba(0, 0, 0, 0)`;
 // dark = `rgba(0, 0, 0, 0)`;
@@ -56,8 +54,7 @@ createEffect(() => {
 // results from search
 async function fetchResults(prompt: string) {
   setState("query");
-  if (boxStates[3].data?.length > 100) boxStates[3].data.splice(0, 50);
-  if (boxStates[1].data?.length > 100) boxStates[1].data.splice(0, 50);
+  // if (boxStates[1].data?.length > 100) boxStates[1].data.splice(0, 50);
   boxStates[2].data?.unshift(
     <>
       <span
@@ -114,7 +111,7 @@ async function fetchComic(id: number) {
 }
 async function suggestWords(prompt: string) {
   setState("suggest");
-  if (boxStates[3].data?.length > 100) boxStates[3].data.splice(0, 50);
+  if (boxStates[3].data?.length > 500) boxStates[3].data.splice(400, 1000);
   if (prompt != "")
     boxStates[3].data?.unshift(
       <span
@@ -131,7 +128,7 @@ async function suggestWords(prompt: string) {
               <span
                 style={`font-variation-settings: "wght" ${Math.random() * 700}`}
               >
-                {x}
+                {`${x}, `}
               </span>
             );
           return res;
@@ -202,13 +199,14 @@ const FullPage: Component<{
     title: props.comic.safe_title,
   }); // upon pressing search
   const [exp] = createResource(selected, getExplain);
+  console.log(close());
   console.log(exp);
   return (
     <div class="full-page">
       <div
         class="page-close"
         onClick={() => {
-          close();
+          props.close();
         }}
       >
         close
@@ -286,6 +284,7 @@ const Box: Component<{
   let val = 0.65;
   return (
     <div
+      onClick={() => setClosed(false)}
       class={animate() ? `one animate` : `one`}
       style={`width: ${
         !closed() ? props.state.w : props.state.w * val
@@ -319,6 +318,7 @@ const App: Component = () => {
   }
 
   function handleClose() {
+    console.log("called");
     setSelected(false);
   }
   return (
