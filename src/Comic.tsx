@@ -1,11 +1,13 @@
 import { Accessor, Component, createSignal } from "solid-js";
-const Comic: Component<{
+import { Comic } from "./Types";
+
+const ComicBox: Component<{
   imgY: Accessor<string>;
   click: Function;
-  comic: { num: number; safe_title: string; img: string; alt: string };
+  comic: Comic;
 }> = (props) => {
   const [hover, setHover] = createSignal(false);
-  let rank = props.comic.rank + 1;
+  let rank = props.comic.rank ? props.comic.rank + 1 : 1;
   return (
     <>
       <img
@@ -36,4 +38,4 @@ const Comic: Component<{
   );
 };
 
-export { Comic };
+export { ComicBox };
