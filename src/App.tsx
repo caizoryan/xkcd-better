@@ -1,9 +1,6 @@
 import {
-  JSXElement,
-  createResource,
-  Switch,
-  Match,
   Component,
+  createResource,
   createSignal,
   For,
   createEffect,
@@ -34,6 +31,7 @@ endpoint = `http://localhost:8080`;
 type States = "suggest" | "query" | "results" | "data";
 const [state, setState] = createSignal<States>("suggest");
 
+// ---------------------------
 createEffect(() => {
   if (state() === "suggest") {
     handleColors(3);
@@ -46,6 +44,7 @@ createEffect(() => {
   }
 });
 
+// ----------------------------
 // results from search
 async function fetchResults(prompt: string) {
   setState("query");
@@ -78,6 +77,7 @@ async function fetchResults(prompt: string) {
     });
 }
 
+// ----------------------------
 // comic data
 async function fetchComic(id: number) {
   setState("results");
@@ -92,8 +92,10 @@ async function fetchComic(id: number) {
     });
 }
 
+// ----------------------------
 // suggestions
 async function fetchSuggestions(prompt: string) {
+  // if (prompt.length === 0) return [""];
   setState("suggest");
   cleanBoxData(3, 500, 100);
   if (prompt != "")
@@ -113,12 +115,25 @@ async function fetchSuggestions(prompt: string) {
               3,
               <span style={randomFontWeight(700)}>{`${x}, `}</span>
             );
-          return res;
+          setSelectedSuggestion(res.length);
+          return res.reverse();
         } else return [""];
       });
   else return [""];
 }
 
+async function getExplain(query: Comic) {
+  let title = query.title?.replace(" ", "_");
+  let url = `https://www.explainxkcd.com/wiki/api.php?action=parse&page=${query.num}:_${title}&prop=wikitext&origin=*&format=json`;
+  return await fetch(url)
+    .then((res) => res.json())
+    .then((res) => {
+      return res.parse.wikitext["*"];
+    });
+}
+
+// -------------------------------
+// Variables
 let inputBox: HTMLInputElement;
 const [prompt, setPrompt] = createSignal(""); // upon pressing search
 const [results] = createResource(prompt, fetchResults);
@@ -126,14 +141,35 @@ const [animate, setAnimate] = createSignal(false);
 const [tempPrompt, setTempPrompt] = createSignal(""); // suggestions as you type
 const [data, setData] = createSignal<Array<any>>([]);
 const [suggestions] = createResource(tempPrompt, fetchSuggestions);
-
 const [closed, setClosed] = createSignal(false);
+const [imgY, setImgY] = createSignal("0px");
+const [selected, setSelected] = createSignal(false);
+const [comic, setComic] = createSignal<Comic>({
+  num: 1969,
+  safe_title: "Not Available",
+});
+const [explaination] = createResource(comic, getExplain);
+const [selectedSuggestion, setSelectedSuggestion] = createSignal(0);
+const [showSuggestions, setShowSuggestions] = createSignal(true);
 
+// ------------------------------
+// utlis
 function handleSearch(prompt: string) {
+  // if (prompt.length === 0) return;
   if (!closed()) setClosed(true);
+  setShowSuggestions(false);
   setPrompt(prompt);
   setData([]);
   updateData(results);
+
+  if (inputBox.value != prompt) {
+    inputBox.value = prompt;
+  }
+
+  if (closed()) setAnimate(true);
+  setTimeout(() => {
+    setAnimate(false);
+  }, 500);
 }
 
 function updateData(results: any) {
@@ -162,102 +198,141 @@ function updateData(results: any) {
   }
 }
 
-createEffect(() => {
-  if (closed()) setAnimate(true);
+function handleSelected(comic: Comic) {
+  setSelected(false);
+  setComic(comic);
   setTimeout(() => {
-    setAnimate(false);
-  }, 500);
-});
-
-function handleMouseMove(event: MouseEvent) {
-  let x = event.clientX;
-  let y = event.clientY;
-
-  setImgY(y - 150 + "px");
-  changeBoxStates(x, y);
+    setSelected(true);
+  }, 100);
 }
 
-const [imgY, setImgY] = createSignal("0px");
+function handleKeyDown(event: KeyboardEvent) {
+  if (inputBox === document.activeElement) {
+    setShowSuggestions(true);
+    if (event.key === "Enter") {
+      console.log(inputBox.value);
+      handleSearch(inputBox.value);
+    }
+    if (event.key === "ArrowUp") {
+      if (selectedSuggestion() === 0) {
+        setSelectedSuggestion(suggestions().length - 1);
+        let prompt = suggestions()[selectedSuggestion()];
+        if (inputBox.value != prompt) {
+          inputBox.value = prompt;
+        }
+      } else if (selectedSuggestion() != 0) {
+        setSelectedSuggestion(selectedSuggestion() - 1);
+        let prompt = suggestions()[selectedSuggestion()];
+        if (inputBox.value != prompt) {
+          inputBox.value = prompt;
+        }
+      }
+    }
+    if (event.key === "ArrowDown") {
+      if (selectedSuggestion() === suggestions().length - 1) {
+        setSelectedSuggestion(0);
+        let prompt = suggestions()[selectedSuggestion()];
+        if (inputBox.value != prompt) {
+          inputBox.value = prompt;
+        }
+      } else if (selectedSuggestion() < suggestions().length - 1) {
+        setSelectedSuggestion(selectedSuggestion() + 1);
+        let prompt = suggestions()[selectedSuggestion()];
+        if (inputBox.value != prompt) {
+          inputBox.value = prompt;
+        }
+      }
+    }
+  }
+}
+
+// ------------------------------
+// components
+const Search: Component = () => {
+  return (
+    <div
+      class="search-container"
+      style={closed() ? `right: 60vw` : `right: 10vw;`}
+    >
+      <Show
+        when={
+          suggestions() ? suggestions()[0] != "" && showSuggestions() : false
+        }
+      >
+        <div class="suggestions-container">
+          <For each={suggestions()}>
+            {(suggested, i) => {
+              if (suggested != "")
+                return (
+                  <p
+                    onClick={() => handleSearch(suggested)}
+                    class={
+                      i() === selectedSuggestion()
+                        ? "selected-suggestions suggestions"
+                        : "suggestions"
+                    }
+                  >
+                    {suggested}
+                  </p>
+                );
+            }}
+          </For>
+        </div>
+      </Show>
+      <div class="search-and-button">
+        <input
+          ref={inputBox}
+          type="text"
+          onInput={(e) => setTempPrompt(e.currentTarget.value)}
+        ></input>
+        <button
+          onClick={() => {
+            handleSearch(inputBox.value);
+          }}
+        >
+          Search
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Results: Component = () => {
+  return (
+    <div class="results-page" style={closed() ? `right: 0vw;` : `right: -50vw`}>
+      <For each={data()}>
+        {(comic) => (
+          <ComicBox click={handleSelected} imgY={imgY} comic={comic}></ComicBox>
+        )}
+      </For>
+    </div>
+  );
+};
 
 const App: Component = () => {
   onMount(() => {
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("keydown", handleKeyDown);
   });
+  function handleMouseMove(event: MouseEvent) {
+    let x = event.clientX;
+    let y = event.clientY;
 
-  const [selected, setSelected] = createSignal(false);
-  const [comic, setComic] = createSignal<Comic>({
-    num: 1969,
-    safe_title: "Not Available",
-  });
-
-  function handleSelected(comic: Comic) {
-    setSelected(false);
-    setComic(comic);
-    setTimeout(() => {
-      setSelected(true);
-    }, 100);
-  }
-
-  function handleClose() {
-    setSelected(false);
+    setImgY(y - 150 + "px");
+    changeBoxStates(x, y);
   }
 
   return (
     <>
       <Canvas></Canvas>
-      <div
-        class="search-container"
-        style={closed() ? `right: 60vw` : `right: 10vw;`}
-      >
-        <Show when={suggestions() ? suggestions()[0] != "" : false}>
-          <div class="suggestions-container">
-            <For each={suggestions()}>
-              {(suggested) => {
-                if (suggested != "")
-                  return (
-                    <p
-                      onClick={() => handleSearch(suggested)}
-                      class="suggestions"
-                    >
-                      {suggested}
-                    </p>
-                  );
-              }}
-            </For>
-          </div>
-        </Show>
-        <div class="search-and-button">
-          <input
-            ref={inputBox}
-            type="text"
-            onInput={(e) => setTempPrompt(e.currentTarget.value)}
-          ></input>
-          <button
-            onClick={() => {
-              handleSearch(inputBox.value);
-            }}
-          >
-            Search
-          </button>
-        </div>
-      </div>
-      <div
-        class="results-page"
-        style={closed() ? `right: 0vw;` : `right: -50vw`}
-      >
-        <For each={data()}>
-          {(comic) => (
-            <ComicBox
-              click={handleSelected}
-              imgY={imgY}
-              comic={comic}
-            ></ComicBox>
-          )}
-        </For>
-      </div>
-      <Show when={selected()}>
-        <FullPage close={handleClose} comic={comic()}></FullPage>
-      </Show>
+      <Search></Search>
+      <Results></Results>
+      <FullPage
+        selected={selected}
+        setSelected={setSelected}
+        comic={comic}
+        explaination={explaination}
+      ></FullPage>
     </>
   );
 };

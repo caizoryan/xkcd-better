@@ -14,7 +14,7 @@ const ComicBox: Component<{
         class="comic-img"
         style={
           hover()
-            ? `right: 45vw; top: ${props.imgY()}`
+            ? `right: 50vw; top: ${props.imgY()}`
             : `right: -50vw;top: ${props.imgY()}`
         }
         src={props.comic.img}

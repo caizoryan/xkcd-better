@@ -21,7 +21,6 @@ a {
 .full-page {
   box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, 0.5);
   position: fixed;
-  right: 0;
   top: 0;
   height: 100vh;
   overflow-y: scroll;
@@ -30,6 +29,7 @@ a {
   background: white;
   display: flex;
   flex-direction: column;
+  transition: ease-in-out all 100ms;
 }
 
 .page-title {
@@ -78,6 +78,7 @@ a {
 .page-display {
   width: 68%;
   overflow-y: scroll;
+  margin-bottom: 150px;
 }
 
 .page-display img {
@@ -168,7 +169,10 @@ button:hover {
   transition: ease-in-out all 250ms;
   font-variation-settings: "wght" 300;
 }
-
+.selected-suggestions {
+  font-variation-settings: "wght" 700;
+  transition: ease-in-out all 250ms;
+}
 .suggestions:nth-child(1) {
   border-top: 0px solid black;
 }
@@ -244,9 +248,11 @@ button:hover {
 .comic-img {
   position: fixed;
   top: 5vw;
+  transform: rotate(1.4deg) scale(1.02);
   width: 25vw;
   transition: ease-in-out right 180ms;
   border: 3px solid black;
   padding: 10px;
   background: white;
+  /* z-index: 10; */
 }
