@@ -24,7 +24,7 @@ import { ComicBox } from "./Comic";
 
 // set endpoint here
 let endpoint = `https://xo6yu9zb74.execute-api.us-east-2.amazonaws.com/staging`;
-endpoint = `http://localhost:8080`;
+// endpoint = `http://localhost:8080`;
 // work locally, push other api
 
 // For States and animation
