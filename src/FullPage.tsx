@@ -31,16 +31,23 @@ const FullPage: Component<{
       >
         close
       </div>
-      <div class="page-title">{props.comic().safe_title}</div>
+      <div class="page-title">
+        <p>{props.comic().safe_title}</p>
+        <a href={`https://xkcd.com/${props.comic().num}`} target="_blank">
+          <p class="page-link">{`Go to https://xkcd.com/${
+            props.comic().num
+          } -->`}</p>
+        </a>
+      </div>
       <div class="page-rest">
         <div class="page-alt-explain">
           <div class="page-alt">{props.comic().alt}</div>
-          <button
-            class="page-show-explain"
-            onClick={() => setExplain(!explain())}
+          <a
+            href={`https://explainxkcd.com/${props.comic().num}`}
+            target="_blank"
           >
-            {explain() ? "Show Comic" : "Show Explaination"}
-          </button>
+            <p class="page-show-explain page-link">{`See Explaination`}</p>
+          </a>
         </div>
 
         <div class="page-display">

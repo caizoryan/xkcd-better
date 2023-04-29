@@ -5,6 +5,7 @@ type Comic = {
   img?: string;
   alt?: string;
   rank?: number;
+  stats?: Array<any>;
 };
 
 export type { Comic };

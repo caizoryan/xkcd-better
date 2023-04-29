@@ -1,4 +1,6 @@
 import {
+  Resource,
+  Switch,
   Component,
   createResource,
   createSignal,
@@ -6,6 +8,7 @@ import {
   createEffect,
   onMount,
   Show,
+  Match,
 } from "solid-js";
 import {
   Canvas,
@@ -77,7 +80,6 @@ async function fetchResults(prompt: string) {
     });
 }
 
-// ----------------------------
 // comic data
 async function fetchComic(id: number) {
   setState("results");
@@ -92,7 +94,6 @@ async function fetchComic(id: number) {
     });
 }
 
-// ----------------------------
 // suggestions
 async function fetchSuggestions(prompt: string) {
   // if (prompt.length === 0) return [""];
@@ -132,6 +133,42 @@ async function getExplain(query: Comic) {
     });
 }
 
+async function fetchMoreComics(query: { prompt: string; lastIndex: number }) {
+  setBoxData(
+    2,
+    <>
+      <span style={randomFontWeight(100)}>{`${endpoint}/search?q=`}</span>
+      <span style={randomFontWeight(800)}>{query.prompt}</span>
+      <span style={randomFontWeight(700)}>{`&autocorrect=true&start=${
+        query.lastIndex + 1
+      }`}</span>
+    </>
+  );
+  return await fetch(
+    `${endpoint}/search?q=${query.prompt}&autocorrect=true&start=${
+      query.lastIndex + 1
+    }`
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.rankings) {
+        for (const x of res.rankings)
+          setBoxData(
+            1,
+            <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>
+          );
+        return res.rankings;
+      } else if (typeof res != "string") {
+        for (const x of res)
+          setBoxData(
+            1,
+            <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>
+          );
+        return res;
+      } else return [{ ComicNum: 1969 }];
+    });
+}
+
 // -------------------------------
 // Variables
 let inputBox: HTMLInputElement;
@@ -152,10 +189,15 @@ const [explaination] = createResource(comic, getExplain);
 const [selectedSuggestion, setSelectedSuggestion] = createSignal(0);
 const [showSuggestions, setShowSuggestions] = createSignal(true);
 
+const [nextPageValues, setNextPageValues] = createSignal({
+  prompt: "",
+  lastIndex: 0,
+});
+const [nextPage] = createResource(nextPageValues, fetchMoreComics);
+
 // ------------------------------
 // utlis
 function handleSearch(prompt: string) {
-  // if (prompt.length === 0) return;
   if (!closed()) setClosed(true);
   setShowSuggestions(false);
   setPrompt(prompt);
@@ -172,7 +214,7 @@ function handleSearch(prompt: string) {
   }, 500);
 }
 
-function updateData(results: any) {
+function updateData(results: Resource<any>) {
   const swap: Array<any> = [];
   if (results.loading) {
     setTimeout(() => {
@@ -184,6 +226,7 @@ function updateData(results: any) {
       fetchComic(x.ComicNum)
         .then((res) => {
           res.rank = i;
+          res.stats = x.TermSections;
           swap.push(res);
         })
         .then(() => {
@@ -198,6 +241,39 @@ function updateData(results: any) {
   }
 }
 
+function addData(results: any) {
+  const swap: Array<any> = [];
+  if (results.loading) {
+    setTimeout(() => {
+      addData(results);
+    }, 100);
+  } else if (results.state === "ready") {
+    for (let i = 0; i < results().length; i++) {
+      let x = results()[i];
+      fetchComic(x.ComicNum)
+        .then((res) => {
+          res.rank = i + data().length;
+          res.stats = x.TermSections;
+          swap.push(res);
+        })
+        .then(() => {
+          if (swap.length === results().length) {
+            setData([...data(), ...swap.sort((a, b) => a.rank - b.rank)]);
+            setState("data");
+          }
+        });
+    }
+  } else {
+    console.log("Failed");
+  }
+}
+
+function handleNextPage(prompt: string) {
+  setShowSuggestions(false);
+  setNextPageValues({ prompt: prompt, lastIndex: data().length });
+  addData(nextPage);
+}
+
 function handleSelected(comic: Comic) {
   setSelected(false);
   setComic(comic);
@@ -206,12 +282,13 @@ function handleSelected(comic: Comic) {
   }, 100);
 }
 
+// Need to refactor...
 function handleKeyDown(event: KeyboardEvent) {
   if (inputBox === document.activeElement) {
     setShowSuggestions(true);
     if (event.key === "Enter") {
-      console.log(inputBox.value);
       handleSearch(inputBox.value);
+      inputBox.blur();
     }
     if (event.key === "ArrowUp") {
       if (selectedSuggestion() === 0) {
@@ -229,7 +306,7 @@ function handleKeyDown(event: KeyboardEvent) {
       }
     }
     if (event.key === "ArrowDown") {
-      if (selectedSuggestion() === suggestions().length - 1) {
+      if (selectedSuggestion() > suggestions().length - 1) {
         setSelectedSuggestion(0);
         let prompt = suggestions()[selectedSuggestion()];
         if (inputBox.value != prompt) {
@@ -242,6 +319,12 @@ function handleKeyDown(event: KeyboardEvent) {
           inputBox.value = prompt;
         }
       }
+    }
+  } else if (event.key === "Backspace" || event.key === "Escape") {
+    if (selected()) setSelected(false);
+    else if (closed()) {
+      setClosed(false);
+      inputBox.focus();
     }
   }
 }
@@ -305,10 +388,33 @@ const Results: Component = () => {
           <ComicBox click={handleSelected} imgY={imgY} comic={comic}></ComicBox>
         )}
       </For>
+      <Switch>
+        <Match
+          when={
+            data().length > 0 &&
+            nextPageValues().lastIndex != data().length &&
+            data().length > 9
+          }
+        >
+          <button
+            class="show-more"
+            onClick={() => {
+              handleNextPage(prompt());
+            }}
+          >
+            Show More
+          </button>
+        </Match>
+
+        <Match when={nextPageValues().lastIndex === data().length}>
+          <p class="loading">Loading...</p>
+        </Match>
+      </Switch>
     </div>
   );
 };
 
+// ------------------------------
 const App: Component = () => {
   onMount(() => {
     window.addEventListener("mousemove", handleMouseMove);
@@ -337,4 +443,5 @@ const App: Component = () => {
   );
 };
 
+// ------------------------------
 export { animate, closed, setClosed, App };
