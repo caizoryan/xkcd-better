@@ -23,7 +23,7 @@ import { FullPage } from "./FullPage";
 
 import { Comic } from "./Types";
 import "./style.css";
-import { ComicBox } from "./Comic";
+import { ComicBox, ComicBoxInteractive } from "./Comic";
 
 // set endpoint here
 let endpoint = `https://xo6yu9zb74.execute-api.us-east-2.amazonaws.com/staging`;
@@ -221,11 +221,13 @@ function updateData(results: Resource<any>) {
       updateData(results);
     }, 100);
   } else if (results.state === "ready") {
+    console.log(results());
     for (let i = 0; i < results().length; i++) {
       let x = results()[i];
       fetchComic(x.ComicNum)
         .then((res) => {
           res.rank = i;
+          res.interactive = x.Interactive;
           res.stats = x.TermSections;
           swap.push(res);
         })
@@ -254,6 +256,7 @@ function addData(results: any) {
         .then((res) => {
           res.rank = i + data().length;
           res.stats = x.TermSections;
+          res.interactive = x.Interactive;
           swap.push(res);
         })
         .then(() => {
@@ -400,9 +403,21 @@ const Results: Component = () => {
   return (
     <div class="results-page" style={closed() ? `right: 0vw;` : `right: -50vw`}>
       <For each={data()}>
-        {(comic) => (
-          <ComicBox click={handleSelected} imgY={imgY} comic={comic}></ComicBox>
-        )}
+        {(comic) =>
+          comic.interactive ? (
+            <ComicBoxInteractive
+              click={handleSelected}
+              imgY={imgY}
+              comic={comic}
+            ></ComicBoxInteractive>
+          ) : (
+            <ComicBox
+              click={handleSelected}
+              imgY={imgY}
+              comic={comic}
+            ></ComicBox>
+          )
+        }
       </For>
       <Switch>
         <Match

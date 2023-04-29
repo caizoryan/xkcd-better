@@ -6,6 +6,7 @@ type Comic = {
   alt?: string;
   rank?: number;
   stats?: Array<any>;
+  interactive?: boolean;
 };
 
 export type { Comic };

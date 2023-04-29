@@ -282,6 +282,21 @@ button:hover {
   z-index: -10;
 }
 
+#comic-interactive-img {
+  font-size: 20px;
+  z-index: 10;
+  border: 3px solid rgba(200, 0, 100, 1);
+  background-color: rgb(200, 0, 100);
+  color: white;
+  box-shadow: 5px 5px 24px -2px rgba(200, 0, 100, 0.3);
+}
+
+#comic-interactive:hover {
+  border: 3px solid rgba(200, 0, 100, 1);
+  color: rgb(200, 0, 100);
+  box-shadow: 5px 5px 24px -2px rgba(200, 0, 100, 0.3);
+}
+
 .results-page {
   z-index: -1;
   width: 50vw;

@@ -87,4 +87,44 @@ const ComicBox: Component<{
   );
 };
 
-export { ComicBox };
+const ComicBoxInteractive: Component<{
+  imgY: Accessor<string>;
+  click: Function;
+  comic: Comic;
+}> = (props) => {
+  const [hover, setHover] = createSignal(false);
+  let rank = props.comic.rank ? props.comic.rank + 1 : 1;
+  return (
+    <>
+      <div
+        class="comic-img comic-interactive-img"
+        id="comic-interactive-img"
+        style={
+          hover()
+            ? `right: 28vw; top: ${props.imgY()}`
+            : `right: -50vw;top: ${props.imgY()}`
+        }
+      >
+        Interactive Comic!<br></br>Click to view!
+      </div>
+      <a href={`https://xkcd.com/${props.comic.num}`} target="_blank">
+        <div
+          class="comic-box"
+          id="comic-interactive"
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          <div class="comic-title-box">
+            <p class="comic-title">{rank + ". " + props.comic.safe_title}</p>
+          </div>
+          <div class="comic-title-alt">
+            <p>{props.comic.alt}</p>
+          </div>
+        </div>
+      </a>
+      <Stats stats={props.comic.stats} hover={hover}></Stats>
+    </>
+  );
+};
+
+export { ComicBox, ComicBoxInteractive };
