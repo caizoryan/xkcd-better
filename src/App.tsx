@@ -286,6 +286,22 @@ function handleSelected(comic: Comic) {
 function handleKeyDown(event: KeyboardEvent) {
   if (inputBox === document.activeElement) {
     setShowSuggestions(true);
+    if (event.key === "Tab") {
+      event.preventDefault();
+      if (selectedSuggestion() >= suggestions().length - 1) {
+        setSelectedSuggestion(0);
+        let prompt = suggestions()[selectedSuggestion()];
+        if (inputBox.value != prompt) {
+          inputBox.value = prompt;
+        }
+      } else if (selectedSuggestion() < suggestions().length - 1) {
+        setSelectedSuggestion(selectedSuggestion() + 1);
+        let prompt = suggestions()[selectedSuggestion()];
+        if (inputBox.value != prompt) {
+          inputBox.value = prompt;
+        }
+      }
+    }
     if (event.key === "Enter") {
       handleSearch(inputBox.value);
       inputBox.blur();
@@ -306,7 +322,7 @@ function handleKeyDown(event: KeyboardEvent) {
       }
     }
     if (event.key === "ArrowDown") {
-      if (selectedSuggestion() > suggestions().length - 1) {
+      if (selectedSuggestion() >= suggestions().length - 1) {
         setSelectedSuggestion(0);
         let prompt = suggestions()[selectedSuggestion()];
         if (inputBox.value != prompt) {
