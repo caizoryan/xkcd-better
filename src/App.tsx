@@ -18,7 +18,7 @@ import {
   setBoxData,
 } from "./Box";
 
-import { fontWght as randomFontWeight } from "./utlis";
+import { randomFontWeight } from "./utlis";
 import { FullPage } from "./FullPage";
 
 import { Comic } from "./Types";

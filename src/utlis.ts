@@ -22,4 +22,4 @@ function randomFontWeight(num: number): string {
   return `font-variation-settings: "wght" ${Math.random() * num}`;
 }
 
-export { mapRange, randomFontWeight as fontWght };
+export { mapRange, randomFontWeight };

@@ -1,6 +1,10 @@
 import { Accessor, Component, createSignal, For } from "solid-js";
+import { mapRange } from "./utlis";
 import { Comic } from "./Types";
 
+function mapFontWeight(current: number, total: number) {
+  return mapRange(current, 0, total, 100, 1000);
+}
 const Stats: Component<{ stats: Array<object>; hover: Accessor<boolean> }> = (
   props
 ) => {
@@ -10,6 +14,7 @@ const Stats: Component<{ stats: Array<object>; hover: Accessor<boolean> }> = (
     ExplanationCount: 0,
     AltCount: 0,
     TranscriptCount: 0,
+    Total: 0,
   };
 
   for (const x of props.stats) {
@@ -17,10 +22,22 @@ const Stats: Component<{ stats: Array<object>; hover: Accessor<boolean> }> = (
     singular.ExplanationCount += x.ExplanationCount;
     singular.AltCount += x.AltCount;
     singular.TranscriptCount += x.TranscriptCount;
+    singular.Total +=
+      x.TitleCount + x.ExplanationCount + x.AltCount + x.TranscriptCount;
   }
   for (const [x, y] of Object.entries(singular)) {
-    if (x != null || x != undefined)
-      text.push(<span class="comic-stat-single">{x + ":" + y + " "}</span>);
+    if ((x != null || x != undefined) && x != "Total")
+      text.push(
+        <span
+          class="comic-stat-single"
+          style={`font-variation-settings: 'wght' ${mapFontWeight(
+            y,
+            singular.Total
+          )}`}
+        >
+          {x + ":" + y + " "}
+        </span>
+      );
   }
 
   return (
