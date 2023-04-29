@@ -289,6 +289,31 @@ button:hover {
   background-color: rgb(200, 0, 100);
   color: white;
   box-shadow: 5px 5px 24px -2px rgba(200, 0, 100, 0.3);
+  animation: wiggle 1.5s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  55% {
+    transform: rotate(0deg);
+  }
+  65% {
+    transform: rotate(2.5deg);
+  }
+  75% {
+    transform: rotate(-2.5deg);
+  }
+  85% {
+    transform: rotate(2.5deg);
+  }
+  95% {
+    transform: rotate(-2.5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 #comic-interactive:hover {
