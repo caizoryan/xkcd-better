@@ -55,11 +55,9 @@ const Box: Component<{
     <div
       onClick={() => setClosed(false)}
       class={animate() ? `one animate` : `one`}
-      style={`width: ${
-        !closed() ? props.state.w : props.state.w * val
-      }vw; height: ${props.state.h}vh; top: ${props.state.y}vh; left: ${
-        props.state.x
-      }vw; color: ${
+      style={`width: ${!closed() ? props.state.w : props.state.w * val}vw; height: ${
+        props.state.h
+      }vh; top: ${props.state.y}vh; left: ${props.state.x}vw; color: ${
         props.state.c
       }; box-shadow: 5px 5px 24px -2px rgba(0, 0, 0, ${props.state.o})`}
     >
@@ -93,10 +91,7 @@ function setBoxData(index: number, value: JSXElement) {
 // when array has too many values, splice by amt
 function cleanBoxData(index: number, cutoff: number, cleanAmt: number) {
   if (boxStates[index].data?.length > cutoff)
-    boxStates[index].data.splice(
-      boxStates[index].data.length - cleanAmt,
-      cleanAmt
-    );
+    boxStates[index].data.splice(boxStates[index].data.length - cleanAmt, cleanAmt);
 }
 
 export { Canvas, changeBoxStates, handleColors, setBoxData, cleanBoxData };

@@ -1,3 +1,9 @@
+//
+//   /~\
+// C oo
+// _( ^)
+// /   ~\
+// https://github.com/caizoryan/xkcd-better
 import {
   Resource,
   Switch,
@@ -10,13 +16,7 @@ import {
   Show,
   Match,
 } from "solid-js";
-import {
-  Canvas,
-  changeBoxStates,
-  handleColors,
-  cleanBoxData,
-  setBoxData,
-} from "./Box";
+import { Canvas, changeBoxStates, handleColors, cleanBoxData, setBoxData } from "./Box";
 
 import { randomFontWeight } from "./utlis";
 import { FullPage } from "./FullPage";
@@ -24,6 +24,7 @@ import { FullPage } from "./FullPage";
 import { Comic } from "./Types";
 import "./style.css";
 import { ComicBox, ComicBoxInteractive } from "./Comic";
+import { Stats } from "./Stats";
 
 // set endpoint here
 let endpoint = `https://xo6yu9zb74.execute-api.us-east-2.amazonaws.com/staging`;
@@ -64,17 +65,11 @@ async function fetchResults(prompt: string) {
     .then((res) => {
       if (res.rankings) {
         for (const x of res.rankings)
-          setBoxData(
-            1,
-            <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>
-          );
+          setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
         return res.rankings;
       } else if (typeof res != "string") {
         for (const x of res)
-          setBoxData(
-            1,
-            <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>
-          );
+          setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
         return res;
       } else return [{ ComicNum: 1969 }];
     });
@@ -86,10 +81,7 @@ async function fetchComic(id: number) {
   return await fetch(`https://getxkcd.vercel.app/api/comic?num=${id}`)
     .then((res) => res.json())
     .then((res) => {
-      setBoxData(
-        0,
-        <span style={randomFontWeight(700)}>{JSON.stringify(res)}</span>
-      );
+      setBoxData(0, <span style={randomFontWeight(700)}>{JSON.stringify(res)}</span>);
       return res;
     });
 }
@@ -100,22 +92,13 @@ async function fetchSuggestions(prompt: string) {
   setState("suggest");
   cleanBoxData(3, 500, 100);
   if (prompt != "")
-    setBoxData(
-      3,
-      <span
-        style={randomFontWeight(100)}
-      >{`${endpoint}/suggest?q=${prompt}`}</span>
-    );
+    setBoxData(3, <span style={randomFontWeight(100)}>{`${endpoint}/suggest?q=${prompt}`}</span>);
   if (prompt.length > 0)
     return await fetch(`${endpoint}/suggest?q=${prompt}`)
       .then((res) => res.json())
       .then((res) => {
         if (res?.length > 0) {
-          for (const x of res)
-            setBoxData(
-              3,
-              <span style={randomFontWeight(700)}>{`${x}, `}</span>
-            );
+          for (const x of res) setBoxData(3, <span style={randomFontWeight(700)}>{`${x}, `}</span>);
           setSelectedSuggestion(res.length);
           return res.reverse();
         } else return [""];
@@ -139,31 +122,21 @@ async function fetchMoreComics(query: { prompt: string; lastIndex: number }) {
     <>
       <span style={randomFontWeight(100)}>{`${endpoint}/search?q=`}</span>
       <span style={randomFontWeight(800)}>{query.prompt}</span>
-      <span style={randomFontWeight(700)}>{`&autocorrect=true&start=${
-        query.lastIndex + 1
-      }`}</span>
+      <span style={randomFontWeight(700)}>{`&autocorrect=true&start=${query.lastIndex + 1}`}</span>
     </>
   );
   return await fetch(
-    `${endpoint}/search?q=${query.prompt}&autocorrect=true&start=${
-      query.lastIndex + 1
-    }`
+    `${endpoint}/search?q=${query.prompt}&autocorrect=true&start=${query.lastIndex + 1}`
   )
     .then((res) => res.json())
     .then((res) => {
       if (res.rankings) {
         for (const x of res.rankings)
-          setBoxData(
-            1,
-            <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>
-          );
+          setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
         return res.rankings;
       } else if (typeof res != "string") {
         for (const x of res)
-          setBoxData(
-            1,
-            <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>
-          );
+          setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
         return res;
       } else return [{ ComicNum: 1969 }];
     });
@@ -184,6 +157,7 @@ const [selected, setSelected] = createSignal(false);
 const [comic, setComic] = createSignal<Comic>({
   num: 1969,
   safe_title: "Not Available",
+  stats: [],
 });
 const [explaination] = createResource(comic, getExplain);
 const [selectedSuggestion, setSelectedSuggestion] = createSignal(0);
@@ -221,7 +195,6 @@ function updateData(results: Resource<any>) {
       updateData(results);
     }, 100);
   } else if (results.state === "ready") {
-    console.log(results());
     for (let i = 0; i < results().length; i++) {
       let x = results()[i];
       fetchComic(x.ComicNum)
@@ -352,15 +325,8 @@ function handleKeyDown(event: KeyboardEvent) {
 // components
 const Search: Component = () => {
   return (
-    <div
-      class="search-container"
-      style={closed() ? `right: 60vw` : `right: 10vw;`}
-    >
-      <Show
-        when={
-          suggestions() ? suggestions()[0] != "" && showSuggestions() : false
-        }
-      >
+    <div class="search-container" style={closed() ? `right: 60vw` : `right: 10vw;`}>
+      <Show when={suggestions() ? suggestions()[0] != "" && showSuggestions() : false}>
         <div class="suggestions-container">
           <For each={suggestions()}>
             {(suggested, i) => {
@@ -411,20 +377,14 @@ const Results: Component = () => {
               comic={comic}
             ></ComicBoxInteractive>
           ) : (
-            <ComicBox
-              click={handleSelected}
-              imgY={imgY}
-              comic={comic}
-            ></ComicBox>
+            <ComicBox click={handleSelected} imgY={imgY} comic={comic}></ComicBox>
           )
         }
       </For>
       <Switch>
         <Match
           when={
-            data().length > 0 &&
-            nextPageValues().lastIndex != data().length &&
-            data().length > 9
+            data().length > 0 && nextPageValues().lastIndex != data().length && data().length > 9
           }
         >
           <button
@@ -475,4 +435,21 @@ const App: Component = () => {
 };
 
 // ------------------------------
-export { animate, closed, setClosed, App };
+export { animate, closed, setClosed, App, endpoint };
+
+// ....................................................
+// ....................................................
+// ........................./\.........................
+// ..................______/__\_______.................
+// ..................||-------------||.................
+// ..................||             ||.................
+// ..................||    \|||/    ||.................
+// ..................||   [ @-@ ]   ||.................
+// ..................||    ( ' )    ||.......       ...
+// ..................||    _(O)_    ||.......|EXIT |...
+// ..................||   / >=< \   ||.......|==>> |...
+// ..................||__/_|_:_|_\__||.................
+// ..................-----------------.................
+// ....................................................
+// ....................................................
+// Monkey with a bowtie in the museum

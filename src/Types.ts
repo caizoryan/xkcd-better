@@ -5,7 +5,7 @@ type Comic = {
   img?: string;
   alt?: string;
   rank?: number;
-  stats?: Array<any>;
+  stats: Array<any>;
   interactive?: boolean;
 };
 
