@@ -59,7 +59,7 @@ const ComicBox: Component<{
         onClick={() => {
           props.click(props.comic);
         }}
-        class="comic-box"
+        class="comic-box comic"
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
@@ -93,7 +93,7 @@ const ComicBoxInteractive: Component<{
       </div>
       <a href={`https://xkcd.com/${props.comic.num}`} target="_blank">
         <div
-          class="comic-box"
+          class="comic-box comic"
           id="comic-interactive"
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}

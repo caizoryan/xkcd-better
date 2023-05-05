@@ -1,9 +1,9 @@
-//
 //   /~\
 // C oo
 // _( ^)
 // /   ~\
 // https://github.com/caizoryan/xkcd-better
+
 import {
   Resource,
   Switch,
@@ -28,7 +28,7 @@ import { Stats } from "./Stats";
 
 // set endpoint here
 let endpoint = `https://xo6yu9zb74.execute-api.us-east-2.amazonaws.com/staging`;
-// endpoint = `http://localhost:8080`;
+endpoint = `http://localhost:8080`;
 // work locally, push other api
 
 // For States and animation
@@ -63,6 +63,11 @@ async function fetchResults(prompt: string) {
   return await fetch(`${endpoint}/search?q=${prompt}&autocorrect=true`)
     .then((res) => res.json())
     .then((res) => {
+      if (res.totalRanked - 1 <= data().length + res.rankings.length) {
+        setShowLoadmore(false);
+      } else {
+        setShowLoadmore(true);
+      }
       if (res.rankings) {
         for (const x of res.rankings)
           setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
@@ -70,6 +75,7 @@ async function fetchResults(prompt: string) {
       } else if (typeof res != "string") {
         for (const x of res)
           setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
+        console.log(res);
         return res;
       } else return [{ ComicNum: 1969 }];
     });
@@ -130,6 +136,11 @@ async function fetchMoreComics(query: { prompt: string; lastIndex: number }) {
   )
     .then((res) => res.json())
     .then((res) => {
+      if (res.totalRanked - 1 <= data().length + res.rankings.length) {
+        setShowLoadmore(false);
+      } else {
+        setShowLoadmore(true);
+      }
       if (res.rankings) {
         for (const x of res.rankings)
           setBoxData(1, <span style={randomFontWeight(700)}>{JSON.stringify(x) + " "}</span>);
@@ -162,6 +173,7 @@ const [comic, setComic] = createSignal<Comic>({
 const [explaination] = createResource(comic, getExplain);
 const [selectedSuggestion, setSelectedSuggestion] = createSignal(0);
 const [showSuggestions, setShowSuggestions] = createSignal(true);
+const [showLoadMore, setShowLoadmore] = createSignal(true);
 
 const [nextPageValues, setNextPageValues] = createSignal({
   prompt: "",
@@ -208,6 +220,7 @@ function updateData(results: Resource<any>) {
           if (swap.length === results().length) {
             setData(swap.sort((a, b) => a.rank - b.rank));
             setState("data");
+            // if(data().[data().length - 1].)
           }
         });
     }
@@ -318,6 +331,9 @@ function handleKeyDown(event: KeyboardEvent) {
       setClosed(false);
       inputBox.focus();
     }
+  } else if (event.key === "/") {
+    event.preventDefault();
+    inputBox.focus();
   }
 }
 
@@ -384,7 +400,10 @@ const Results: Component = () => {
       <Switch>
         <Match
           when={
-            data().length > 0 && nextPageValues().lastIndex != data().length && data().length > 9
+            showLoadMore() &&
+            data().length > 0 &&
+            nextPageValues().lastIndex != data().length &&
+            data().length > 9
           }
         >
           <button

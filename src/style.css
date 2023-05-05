@@ -325,14 +325,12 @@ button:hover {
 .results-page {
   z-index: -1;
   width: 50vw;
-  height: 102vh;
+  height: 90vh;
   position: fixed;
-  /* border: 3px solid black; */
   top: -10px;
-  /* background: white; */
   transition: ease-in-out all 300ms;
   overflow-y: scroll;
-  /* box-shadow: -15px 5px 24px 2px rgba(0, 0, 0, 0.1); */
+  padding-bottom: 10vh;
 }
 
 .show-more {
